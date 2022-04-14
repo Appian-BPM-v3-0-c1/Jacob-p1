@@ -1,21 +1,34 @@
 package com.revature.YOUnique.models;
 
+import java.text.DecimalFormat;
+
 public class Item {
+    DecimalFormat twoDForm = new DecimalFormat("#.00");
+    private int id;
     private String name;
     private String description;
     private double price;
-    private double rating;
-    private int qty = 1;
+    private int stock;
+    private int usersId;
 
     public Item() {
     }
 
-    public Item(String name, String description, double price, int qty, double rating) {
+    public Item(int id, String name, String description, double price, int stock, int usersId) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.qty = qty;
-        this.rating = rating;
+        this.stock = stock;
+        this.usersId = usersId;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -42,32 +55,26 @@ public class Item {
         this.price = price;
     }
 
-    public int getQty() {
-        return qty;
+    public int getStock() {
+        return stock;
     }
 
-    public void setQty(int qty) {
-        this.qty = qty;
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 
-    public double getRating() {
-        return rating;
+    public int getUsersId() { return usersId; }
+
+    public void setUsersId(int usersId) { this.usersId = usersId; }
+
+    public String addItemToString() {
+        return "Name: " + name
+                + "\nDescription: " + description
+                + "\nPrice: $" + price
+                + "\nStock: " + stock;
     }
 
-    public void setRating(double rating) {
-        this.rating = rating;
-    }
-
-    @Override
     public String toString() {
-        return "Name: " + name + " Description: " + description + " Price: " + price + " Rating: " + rating + "/10";
-    }
-
-    public void AddItem() {
-
-    }
-
-    public void RemoveItem() {
-
+        return "\nName: " + name + "\nDescription: " + description + "\nPrice: $" + twoDForm.format(price) + " QTY x " + stock;
     }
 }

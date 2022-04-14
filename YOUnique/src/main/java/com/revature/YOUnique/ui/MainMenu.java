@@ -1,35 +1,56 @@
 package com.revature.YOUnique.ui;
 
+import com.revature.YOUnique.daos.CartDAO;
+import com.revature.YOUnique.daos.ItemDAO;
+import com.revature.YOUnique.daos.UserDAO;
+import com.revature.YOUnique.models.Cart;
+import com.revature.YOUnique.models.User;
+import com.revature.YOUnique.services.CartService;
+import com.revature.YOUnique.services.ItemService;
+import com.revature.YOUnique.services.UserService;
+
 import java.util.Scanner;
 
-public class MainMenu {
-    UserLogin userLogin = new UserLogin();
+public class MainMenu implements IMenu {
+    private final Cart cart;
+    private final ItemService itemService;
     Scanner scan = new Scanner(System.in);
+    private final User user;
 
-    public MainMenu() {
-
+    public MainMenu(Cart cart, ItemService itemService, User user) {
+        this.cart = cart;
+        this.itemService = itemService;
+        this.user = user;
     }
 
-    public void startMenu() {
 
-        String selection;
-        System.out.println("Hello there, GET USER'S FIRST NAME! Welcome to YOUnique!\n");
-        System.out.println("[0] Login\n[1] Create Account");
-        selection = scan.next();
+    @Override
+    public void start() {
+        char input;
 
-        while(true) {
-            if (selection.equals("0")) {
-                userLogin.ExistingUser();
-                break;
-            } else if (selection.equals("1")) {
-                userLogin.CreateAccount();
-                break;
-            } else {
-                System.out.println("Invalid input...please try again...");
+        exit:
+        {
+            while (true) {
+                System.out.println("\nWelcome to YOUnique " + user.getFirstName() + "!");
+                System.out.println("\n[1] Go to Item Menu    [2] Go to Seller Menu    [x] Log out\n");
+                System.out.print("Enter: ");
+                input = scan.next().charAt(0);
+
+                switch (input) {
+                    case '1':
+                        new ItemMenu(new Cart(),new ItemService(new ItemDAO()),new UserService(new UserDAO()),user,new CartService(new CartDAO())).start();
+                        break;
+                    case '2':
+                        new SellersMenu(user, new UserService(new UserDAO()), new ItemService(new ItemDAO())).start();
+                        break;
+                    case 'x':
+                        new LoginMenu(new UserService(new UserDAO())).start();
+                        break exit;
+
+                    default:
+                        System.out.println("\nInvalid input!");
+                }
             }
         }
-
-
     }
-
 }
