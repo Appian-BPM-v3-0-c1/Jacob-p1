@@ -36,7 +36,7 @@ public class ItemMenu implements IMenu {
         exit:
         {
             while (true) {
-                System.out.println("..........ITEMS..........");
+                System.out.println("\n..........ITEMS..........");
                 System.out.println("\n[1] View all items    [2] View my items    [3] Add item\n[4] View my cart    [x] Go back\n");
                 System.out.print("Enter: ");
 
@@ -55,10 +55,9 @@ public class ItemMenu implements IMenu {
                         createItem();
                         break;
                     case '4':
-                        new CartMenu(new ItemService(new ItemDAO()),new CartService(new CartDAO()),new TransactionService(new TransactionDAO()),new UserService(new UserDAO()),user).start();
+                        new CartMenu(new ItemService(new ItemDAO()), new CartService(new CartDAO()), new TransactionService(new TransactionDAO()), new UserService(new UserDAO()), user).start();
                         break;
                     case 'x':
-
                         break exit;
                     default:
                         System.out.println("\nInvalid input!");
@@ -69,10 +68,52 @@ public class ItemMenu implements IMenu {
     }
 
     private void findMyItems() {
-        System.out.println("\n..........SELLING..........\n");
-        List<Item> itemList = itemService.getItemDAO().findUserItems(user.getId());
-        for (int i = 0; i < itemList.size(); i++) {
-            System.out.println("[" + (i + 1) + "] " + itemList.get(i).getName());
+        Item item = new Item();
+        char input;
+        exit:
+        {
+            System.out.println("\n..........SELLING..........\n");
+
+            List<Item> itemList = itemService.getItemDAO().findMyItems(user.getId());
+            if (itemList.size() == 0) {
+                System.out.println("\nYou have not added any items yet");
+                break exit;
+            } else {
+
+                for (int i = 0; i < itemList.size(); i++) {
+                    System.out.println("[" + (i + 1) + "] " + itemList.get(i).getName());
+                }
+
+                while (true) {
+                    System.out.print("\nPick an item to view details or press [x] to go back: ");
+                    input = scan.next().charAt(0);
+                    if (input == 'x') {
+                        break exit;
+                    } else {
+                        int number = Character.getNumericValue(input) - 1;
+                        item = itemList.get(number);
+                        System.out.println(item);
+                        User seller = userService.getUserDAO().findById(itemList.get(number).getUsersId());
+                        System.out.println("Location: " + seller.getCity() + ", " + seller.getState() + " " + seller.getZip());
+                        break;
+                    }
+                }
+                System.out.println("[r] Restock item    [x] Exit");
+                while (true) {
+                    input = scan.next().charAt(0);
+
+                    switch (input) {
+                        case 'r':
+                            restock(item);
+                            break exit;
+                        case 'x':
+                            break exit;
+                        default:
+                            System.out.println("Invalid input");
+                            break;
+                    }
+                }
+            }
         }
     }
 
@@ -85,6 +126,7 @@ public class ItemMenu implements IMenu {
         while (!exit) {
 
             System.out.print("\nEnter in item name: ");
+
             item.setName(scan.nextLine());
 
             System.out.print("\nEnter in item description: ");
@@ -93,8 +135,6 @@ public class ItemMenu implements IMenu {
             System.out.print("\nEnter in item price: ");
             item.setPrice(scan.nextDouble());
 
-            System.out.print("\nEnter in item quantity: ");
-            item.setStock(scan.nextInt());
             item.setUsersId(user.getId());
 
 
@@ -104,6 +144,7 @@ public class ItemMenu implements IMenu {
                 System.out.print("\nEnter: ");
 
                 input = scan.next().charAt(0);
+                scan.nextLine();
 
                 switch (input) {
                     case 'y' -> {
@@ -123,43 +164,45 @@ public class ItemMenu implements IMenu {
         Item item = new Item();
         boolean exit = false;
         char input;
-        List<Item> itemList = itemService.getItemDAO().findAll();
-        while (!exit) {
+        List<Item> itemList = itemService.getItemDAO().findAllInStock(user.getId());
+        exit:{
+            if(itemList.size() == 0){
+                System.out.println("There are not any items added yet");
+                break exit;
+            } else {
+                for (int i = 0; i < itemList.size(); i++) {
+                    if (itemList.get(i).getStock() == 0) {
+                        i++;
+                    }
+                    System.out.println("[" + (i + 1) + "] " + itemList.get(i).getName());
+                }
 
-
-            for (int i = 0; i < itemList.size(); i++) {
-                System.out.println("[" + (i + 1) + "] " + itemList.get(i).getName());
-            }
-
-            while (true) {
-                System.out.print("\nPick an item to view details or press [x] to go back: ");
-                input = scan.next().charAt(0);
-                if (input == 'x') {
-                    exit = true;
-                    break;
-                } else {
-                    int number = Character.getNumericValue(input) - 1;
-                    item = itemList.get(number);
-                    System.out.println(item);
-                    User seller = userService.getUserDAO().findById(itemList.get(number).getUsersId());
-                    System.out.println("Location: " + seller.getCity() + ", " + seller.getState() + " " + seller.getZip());
-                    break;
+                while (true) {
+                    System.out.print("\nPick an item to view details or press [x] to go back: ");
+                    input = scan.next().charAt(0);
+                    if (input == 'x') {
+                        break exit;
+                    } else {
+                        int number = Character.getNumericValue(input) - 1;
+                        item = itemList.get(number);
+                        System.out.println(item.toString());
+                        User seller = userService.getUserDAO().findById(itemList.get(number).getUsersId());
+                        System.out.println("Location: " + seller.getCity() + ", " + seller.getState() + " " + seller.getZip());
+                        break;
+                    }
                 }
             }
+            while (true) {
+                System.out.println("\n[1] Add to cart    [x] Go back");
 
-            while (!exit) {
-                System.out.println("\n[1] Add to cart    [x] Go back\n");
-
-                System.out.print("Enter: ");
                 input = scan.next().charAt(0);
-                scan.nextLine();
+
                 switch (input) {
                     case '1':
-                        addToCart(item, user);
-                        break;
+                        addToCart(item);
+                        break exit;
                     case 'x':
-                        exit = true;
-                        break;
+                        break exit;
                     default:
                         System.out.println("\nInvalid input!");
                         break;
@@ -170,31 +213,33 @@ public class ItemMenu implements IMenu {
         }
     }
 
-    private void addToCart(Item item, User user) {
-        Cart cart = new Cart();
-        while (true) {
-            System.out.println("How many if this item would you like to add to your cart? (Max: " + item.getStock() + ")");
-            int qty = scan.nextInt();
-            scan.nextLine();
-
-            if (qty <= item.getStock()) {
-                double total = (item.getPrice()) * (qty);
-                cart.setTotal(total);
-                cart.setItemQty(qty);
-                cart.setUsersId(user.getId());
-                cart.setItemId(item.getId());
-                System.out.println("Saved to cart");
-                cartService.getCartDAO().save(cart);
-                break;
-            } else {
-                System.out.println("Invalid input");
+    private void addToCart(Item item) {
+        int count = 0;
+        List<Cart> cartList = cartService.getCartDAO().viewCart(user.getId());
+        for (Cart value : cartList) {
+            if (value.getItemId() == item.getId()) {
+                count++;
             }
+        }
+        if (count == 0) {
+            Cart cart = new Cart();
+            cart.setUsersId(user.getId());
+            cart.setItemId(item.getId());
+            System.out.println("\nSaved to cart");
+            cartService.getCartDAO().save(cart);
+
+        } else {
+            System.out.println("That item is already in your cart");
         }
     }
 
-    private void findSellerItems(int usersId) {
-        itemService.getItemDAO().findUserItems(usersId);
-
+    private void restock(Item item) {
+        if (item.getStock() == 0) {
+            itemService.getItemDAO().restock(item.getId());
+            System.out.println("\n Your item is restocked");
+        } else {
+            System.out.println("You can only have one stock per item, hence the name YOUniqueQ!");
+        }
     }
 }
 

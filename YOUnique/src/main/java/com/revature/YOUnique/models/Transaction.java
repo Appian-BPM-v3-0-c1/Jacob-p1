@@ -3,28 +3,49 @@ package com.revature.YOUnique.models;
 public class Transaction {
 
     private int id;
-    private int cartId;
+    private String date;
+    private int itemId;
     private int usersId;
 
     public Transaction() {
     }
 
-    public Transaction(int id, int itemId, int usersId) {
+    public Transaction(int id, String date, int itemId, int usersId) {
         this.id = id;
-        this.cartId = cartId;
+        this.date = date;
+        this.itemId = itemId;
         this.usersId = usersId;
     }
 
-    public int getId() { return id; }
+    public int getId() {
+        return id;
+    }
 
-    public void setId(int id) { this.id = id; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getItemId() { return cartId; }
+    public String getDate() {
+        return date;
+    }
 
-    public void setItemId(int cartId) { this.cartId = cartId; }
+    public void setDate(String date) {
+        this.date = date;
+    }
 
-    public int getUsersId() { return usersId; }
+    public int getItemId() {
+        return itemId;
+    }
 
-    public void setUsersId(int usersId) { this.usersId = usersId; }
+    public void setItemId(int itemId) {
+        this.itemId = itemId;
+    }
 
+    public int getUsersId() {
+        return usersId;
+    }
+
+    public void setUsersId(int usersId) {
+        this.usersId = usersId;
+    }
 }

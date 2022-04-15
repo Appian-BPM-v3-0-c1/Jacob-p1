@@ -2,6 +2,7 @@ package com.revature.YOUnique.daos;
 
 import com.revature.YOUnique.connection.DatabaseConnection;
 import com.revature.YOUnique.models.Transaction;
+import com.revature.YOUnique.models.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -60,5 +61,53 @@ public class TransactionDAO implements CrudDAO<Transaction>{
     @Override
     public boolean removeById(int id) {
         return false;
+    }
+
+    public List<Transaction> sortDateAsc(int id) {
+        List<Transaction> orderList = new ArrayList<>();
+
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM transactions WHERE users_id = ? ORDER BY date ASC");
+            ps.setInt(1,id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Transaction transaction = new Transaction();
+
+                transaction.setId(rs.getInt("id"));
+                transaction.setDate(rs.getString("date"));
+                transaction.setItemId(rs.getInt("items_id"));
+                transaction.setUsersId(rs.getInt("users_id"));
+
+                orderList.add(transaction);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orderList;
+    }
+
+    public List<Transaction> sortDateDesc(int id) {
+        List<Transaction> orderList = new ArrayList<>();
+
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM transactions WHERE users_id = ? ORDER BY date DESC");
+            ps.setInt(1,id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Transaction transaction = new Transaction();
+
+                transaction.setId(rs.getInt("id"));
+                transaction.setDate(rs.getString("date"));
+                transaction.setItemId(rs.getInt("items_id"));
+                transaction.setUsersId(rs.getInt("users_id"));
+
+                orderList.add(transaction);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orderList;
     }
 }

@@ -8,6 +8,7 @@ import com.revature.YOUnique.services.ItemService;
 import com.revature.YOUnique.services.UserService;
 
 import java.util.Date;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class LoginMenu implements IMenu {
@@ -90,7 +91,7 @@ public class LoginMenu implements IMenu {
                 }
             }
             while (true) {
-                System.out.println("[1] January [2] February [3] March [4] April");
+                System.out.println("\n[1] January [2] February [3] March [4] April");
                 System.out.println("[5] May [6] June [7] July [8] August");
                 System.out.println("[9] September [10] October [11] November [12] December");
                 System.out.print("\nWhat month were you born in?: ");
@@ -195,7 +196,7 @@ public class LoginMenu implements IMenu {
 
                 System.out.println("\nNext, we need your full address:");
                 while (true) {
-                    System.out.print("Address (ex: 123 Passaic Avenue):");
+                    System.out.print("\nAddress (ex: 123 Passaic Avenue):");
                     address = scan.nextLine();
                     if (userService.isValidAddress(address)) {
                         char[] charArray = address.toCharArray();
@@ -218,7 +219,7 @@ public class LoginMenu implements IMenu {
                     }
                 }
                 while (true) {
-                    System.out.print("City (ex East Orange):");
+                    System.out.print("\nCity (ex East Orange):");
                     city = scan.nextLine();
                     if (userService.isValidCity(city)) {
                         char[] charArray = city.toCharArray();
@@ -241,7 +242,7 @@ public class LoginMenu implements IMenu {
                     }
                 }
                 while (true) {
-                    System.out.print("State (2 Letters ONLY 'ex NJ'):");
+                    System.out.print("\nState (2 Letters ONLY 'ex NJ'):");
                     state = scan.nextLine().toUpperCase();
                     if (userService.isValidState(state)) {
                         break;
@@ -250,7 +251,7 @@ public class LoginMenu implements IMenu {
                     }
                 }
                 while (true) {
-                    System.out.print("Zip (5 numbers ONLY 'ex 01234'): ");
+                    System.out.print("\nZip (5 numbers ONLY 'ex 01234'): ");
                     zip = scan.nextLine();
                     if (zip.matches("^[0-9]{5}$")) {
                         break;
@@ -266,10 +267,10 @@ public class LoginMenu implements IMenu {
                 break;
             }
             System.out.println("\n" + user);
-            System.out.print("\nDoes this look right to you? (y/n)");
+            System.out.print("\nDoes this look right to you? (y/n) ");
 
             while (true) {
-                String choice = scan.next();
+                String choice = scan.next().toLowerCase();
                 if (choice.equals("y")) {
                     userService.getUserDAO().save(user);
                     System.out.println("\nGREAT! We're all set " + user.getFirstName() + "!");

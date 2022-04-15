@@ -2,6 +2,7 @@ package com.revature.YOUnique.daos;
 
 import com.revature.YOUnique.connection.DatabaseConnection;
 import com.revature.YOUnique.models.Cart;
+import com.revature.YOUnique.models.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,11 +20,9 @@ public class CartDAO implements CrudDAO<Cart> {
         int n = 0;
 
         try {
-            PreparedStatement ps = con.prepareStatement("INSERT INTO carts (qty, total, users_id, items_id) VALUES (?, ?, ?, ?)");
-            ps.setInt(1, obj.getItemQty());
-            ps.setDouble(2,obj.getTotal());
-            ps.setInt(3, obj.getUsersId());
-            ps.setInt(4, obj.getItemId());
+            PreparedStatement ps = con.prepareStatement("INSERT INTO carts (users_id, items_id) VALUES (?, ?)");
+            ps.setInt(1, obj.getUsersId());
+            ps.setInt(2, obj.getItemId());
 
             n = ps.executeUpdate();
 
@@ -69,7 +68,6 @@ public class CartDAO implements CrudDAO<Cart> {
             while (rs.next()) {
                 Cart cart = new Cart();
                 cart.setId(rs.getInt("id"));
-                cart.setItemQty(rs.getInt("qty"));
                 cart.setUsersId(rs.getInt("users_id"));
                 cart.setItemId(rs.getInt("items_id"));
 
@@ -101,19 +99,35 @@ public class CartDAO implements CrudDAO<Cart> {
         return false;
     }
 
-//    public boolean lowerQuantity(int , int) {
-//        int n = 0;
-//
-//        try {
-//            PreparedStatement ps = con.prepareStatement("UPDATE items SET qty = ? WHERE qty = ?");
-//            ps.setInt(1, );
-//            ps.setInt(2, );
-//
-//            n = ps.executeUpdate();
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return n;
-//    }
+    public Cart findCartById(int id) {
+        Cart cart = new Cart();
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM carts WHERE id = ?");
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                cart.setId(rs.getInt("id"));
+                cart.setUsersId(rs.getInt("users_id"));
+                cart.setItemId(rs.getInt("items_id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return cart;
+    }
+    public boolean soldItem(int itemId) {
+        int n = 0;
+
+        try {
+            PreparedStatement ps = con.prepareStatement("UPDATE items SET stock = 0 WHERE id = ?");
+            ps.setInt(1, itemId);
+
+            n = ps.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

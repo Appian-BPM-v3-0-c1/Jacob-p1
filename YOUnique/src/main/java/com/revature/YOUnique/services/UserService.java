@@ -67,4 +67,5 @@ public class UserService {
     public boolean isValidState(String state) {
         return state.matches("^[A-Z]{2}$");
     }
+
 }

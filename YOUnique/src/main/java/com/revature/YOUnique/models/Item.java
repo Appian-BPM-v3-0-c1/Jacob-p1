@@ -8,7 +8,7 @@ public class Item {
     private String name;
     private String description;
     private double price;
-    private int stock;
+    private int stock = 1;
     private int usersId;
 
     public Item() {
@@ -75,6 +75,10 @@ public class Item {
     }
 
     public String toString() {
-        return "\nName: " + name + "\nDescription: " + description + "\nPrice: $" + twoDForm.format(price) + " QTY x " + stock;
+        return "\nName: " + name + "\nDescription: " + description + "\nPrice: $" + twoDForm.format(price) + " Stock: " + stock;
+    }
+
+    public String transactionToString() {
+        return "Name: " + name + " Description: " + description + " Price: $" + twoDForm.format(price);
     }
 }

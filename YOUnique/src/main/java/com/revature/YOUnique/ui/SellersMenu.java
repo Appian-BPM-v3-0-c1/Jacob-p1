@@ -21,13 +21,15 @@ public class SellersMenu implements IMenu {
     private final User user;
     private final UserService userService;
     private final ItemService itemService;
+    private final CartService cartService;
 
     Scanner scan = new Scanner(System.in);
 
-    public SellersMenu(User user, UserService userService, ItemService itemService) {
+    public SellersMenu(User user, UserService userService, ItemService itemService, CartService cartService) {
         this.user = user;
         this.userService = userService;
         this.itemService = itemService;
+        this.cartService = cartService;
     }
 
     @Override
@@ -36,7 +38,7 @@ public class SellersMenu implements IMenu {
         exit:
         {
             while (true) {
-                System.out.println("..........SELLERS..........");
+                System.out.println("\n..........SELLERS..........\n");
                 System.out.println("[1] View all sellers");
                 System.out.println("[2] Search sellers by username");
                 System.out.println("[x] Go back\n");
@@ -52,7 +54,6 @@ public class SellersMenu implements IMenu {
                         break;
                     case 'x':
                         break exit;
-
                     default:
                         System.out.println("\nInvalid input!");
                 }
@@ -69,7 +70,6 @@ public class SellersMenu implements IMenu {
             List<User> userList1 = new ArrayList<>(new HashSet<>(userList));
             for (int i = 0; i < userList1.size(); i++) {
                 System.out.println("[" + (i + 1) + "] " + userList1.get(i).getUsername());
-                //System.out.println("[" + (i + 1) + "] " + userService.getUserDAO().findById(itemList.get(i).getUsersId()).getUsername());
             }
 
             while (true) {
@@ -82,55 +82,115 @@ public class SellersMenu implements IMenu {
                     int number = Character.getNumericValue(input) - 1;
                     int sellerId = userList1.get(number).getId();
                     List<Item> itemList = itemService.getItemDAO().findUserItems(sellerId);
-                    for (int i = 0; i < itemList.size(); i++) {
-                        System.out.println("[" + (i + 1) + "] " + itemList.get(i));
-                    }
 
-                    System.out.println("\n[#] Add that item to cart");
-                    System.out.println("[c] Go to cart");
-                    System.out.println("[x] Go back");
-
-                    input = scan.next().charAt(0);
-
-                    if(input == 'c') {
-                        new CartMenu(new ItemService(new ItemDAO()), new CartService(new CartDAO()), new TransactionService(new TransactionDAO()), new UserService(new UserDAO()), user).start();
-                        break;
-                    } else if(input == 'x'){
+                    if (itemList.size() == 0){
+                        System.out.println("This user has not added items yet");
                         break exit;
                     } else {
+                        for (int i = 0; i < itemList.size(); i++) {
+                            System.out.println("[" + (i + 1) + "] " + itemList.get(i));
+                        }
 
+                        System.out.println("\n[#] Add that item to cart");
+                        System.out.println("[c] Go to cart");
+                        System.out.println("[x] Go back");
+
+                        input = scan.next().charAt(0);
+
+                        if (input == 'c') {
+                            new CartMenu(new ItemService(new ItemDAO()), new CartService(new CartDAO()), new TransactionService(new TransactionDAO()), new UserService(new UserDAO()), user).start();
+                            break;
+                        } else if (input == 'x') {
+                            break exit;
+                        } else {
+                            int number1 = Character.getNumericValue(input) - 1;
+                            Item item = itemList.get(number1);
+                            addToCart(item);
+                            break;
+                        }
                     }
-
                 }
             }
         }
     }
 
     private void searchSellers() {
-        System.out.println("\nType in either the whole username or just part of their username:");
-        System.out.print("\nUsername: ");
-        String input = scan.nextLine();
+        char input;
+        List<User> userList;
+        exit:
+        {
+            while (true) {
+                System.out.println("\nType in either the whole username or just part of their username:");
+                System.out.print("\nUsername: ");
+                String name = scan.next();
 
+                userList = userService.getUserDAO().searchSellers(name);
+
+                if (userList.size() == 0) {
+                    System.out.println("There are no users that match your search...going back");
+                } else {
+                    for (int i = 0; i < userList.size(); i++) {
+                        System.out.println("[" + (i + 1) + "] " + userList.get(i).getUsername());
+                    }
+                    break;
+                }
+            }
+            while (true) {
+                System.out.println("\nChoose a user to view their items:\n");
+                input = scan.next().charAt(0);
+                if (input == 'x') {
+                    break exit;
+                } else {
+                    int number = Character.getNumericValue(input) - 1;
+                    int sellerId = userList.get(number).getId();
+                    List<Item> itemList = itemService.getItemDAO().findUserItems(sellerId);
+
+                    if (itemList.size() == 0) {
+                        System.out.println("This user has not added items yet");
+                        break exit;
+                    } else {
+                        for (int i = 0; i < itemList.size(); i++) {
+                            System.out.println("[" + (i + 1) + "] " + itemList.get(i));
+                        }
+
+                        System.out.println("\n[#] Add that item to cart");
+                        System.out.println("[c] Go to cart");
+                        System.out.println("[x] Go back");
+
+                        input = scan.next().charAt(0);
+
+                        if (input == 'c') {
+                            new CartMenu(new ItemService(new ItemDAO()), new CartService(new CartDAO()), new TransactionService(new TransactionDAO()), new UserService(new UserDAO()), user).start();
+                            break;
+                        } else if (input == 'x') {
+                            break exit;
+                        } else {
+                            int number1 = Character.getNumericValue(input) - 1;
+                            Item item = itemList.get(number1);
+                            addToCart(item);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    private void addToCart() {
-        Cart cart = new Cart();
-        while (true) {
-            System.out.println("How many if this item would you like to add to your cart? (Max: " + item.getStock() + ")");
-            int qty = scan.nextInt();
-            scan.nextLine();
-
-            if (qty <= item.getStock()) {
-                double total = (item.getPrice()) * (qty);
-                cart.setTotal(total);
-                cart.setItemQty(qty);
+    private void addToCart(Item item) {
+        int count = 0;
+        List<Cart> cartList = cartService.getCartDAO().viewCart(user.getId());
+        for (int i = 0; i < cartList.size(); i++) {
+            if (cartList.get(i).getItemId() == item.getId()) {
+                count++;
+            }
+            if (count == 0) {
+                Cart cart = new Cart();
                 cart.setUsersId(user.getId());
                 cart.setItemId(item.getId());
                 System.out.println("Saved to cart");
                 cartService.getCartDAO().save(cart);
-                break;
             } else {
-                System.out.println("Invalid input");
+                System.out.println("That item is already in your cart");
             }
         }
     }

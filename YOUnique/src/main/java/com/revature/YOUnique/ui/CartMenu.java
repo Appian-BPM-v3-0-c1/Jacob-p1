@@ -36,52 +36,49 @@ public class CartMenu implements IMenu {
 
     @Override
     public void start() {
-        double price = 0;
-        double qty = 0;
+        boolean exit = false;
         double total = 0;
-
-        exit : {
+        exit:
+        {
             while (true) {
                 List<Item> itemList = itemService.getItemDAO().findAll();
                 List<Cart> cartList = cartService.getCartDAO().viewCart(user.getId());
                 if (cartList.size() > 0) {
                     for (int i = 0; i < cartList.size(); i++) {
                         System.out.print("\n[" + (i + 1) + "]" + itemService.getItemDAO().findAllById(cartList.get(i).getItemId()).toString().replace("[", "").replace("]", ""));
-                        System.out.print(" x " + cartList.get(i).getItemQty() + " = ");
-                        List<Item> item = itemService.getItemDAO().findAllById(cartList.get(i).getItemId());
-                        price = item.get(0).getPrice();
-                        qty = cartList.get(i).getItemQty();
-                        total = price * qty;
-                        System.out.println("$" + twoDForm.format(total));
                         User seller = userService.getUserDAO().findById(itemList.get(i).getUsersId());
-                        System.out.println("Location: " + seller.getCity() + ", " + seller.getState() + " " + seller.getZip());
-
+                        System.out.println("\nLocation: " + seller.getCity() + ", " + seller.getState() + " " + seller.getZip());
 
                     }
                 } else {
-                    System.out.println("No Items in the cart...going back to Items Menu\n");
-                    break;
+                    System.out.println("\nNo Items in the cart");
+                    break exit;
                 }
 
-                while (true) {
+                while (!exit) {
                     System.out.println("\n[1] Checkout    [2] Remove an item    [x] Go back");
 
                     input = scan.next().charAt(0);
                     switch (input) {
                         case '1':
-                            for(int i = 0;i<cartList.size();i++) {
-                            Transaction transaction = new Transaction();
-                            transaction.setUsersId(user.getId());
-                            transaction.setItemId(cartList.get(i).getItemId());
-                            transactionService.getTransactionDAO().save(transaction);
+                            for (int i = 0; i < cartList.size(); i++) {
+                                Transaction transaction = new Transaction();
+                                transaction.setItemId(cartList.get(i).getItemId());
+                                transaction.setUsersId(user.getId());
+                                transactionService.getTransactionDAO().save(transaction);
+                                remove(user.getId(),cartList.get(i).getItemId());
+                                cartService.getCartDAO().soldItem(cartList.get(i).getItemId());
                             }
-                            break;
+                            System.out.println("Thank your for your YOUnique purchase!");
+                            break exit;
                         case '2':
                             System.out.println("Which item?");
                             input = scan.next().charAt(0);
                             int number = Character.getNumericValue(input) - 1;
                             remove(user.getId(), cartList.get(number).getItemId());
                             System.out.println("\nItem removed\n");
+
+                            exit = true;
                             break exit;
                         case 'x':
                             break exit;
@@ -97,6 +94,7 @@ public class CartMenu implements IMenu {
 
     private void remove(int usersId, int itemId) {
         cartService.getCartDAO().deleteFromCart(usersId, itemId);
+
     }
 
 }

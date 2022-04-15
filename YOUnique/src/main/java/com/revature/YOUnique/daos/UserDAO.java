@@ -19,7 +19,7 @@ public class UserDAO implements CrudDAO<User> {
         int n = 0;
 
         try {
-            PreparedStatement ps = con.prepareStatement("INSERT INTO users (firstname, lastname, dateofbirth, email, username, password, address, city, state, zip, usertype) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement ps = con.prepareStatement("INSERT INTO users (firstname, lastname, dateofbirth, email, username, password, address, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             ps.setString(1, obj.getFirstName());
             ps.setString(2, obj.getLastName());
             ps.setString(3, obj.getDateOfBirth());
@@ -30,7 +30,6 @@ public class UserDAO implements CrudDAO<User> {
             ps.setString(8, obj.getCity());
             ps.setString(9, obj.getState());
             ps.setString(10, obj.getZip());
-            ps.setInt(11, obj.getUserType());
             n = ps.executeUpdate();
 
         } catch (SQLException e) {
@@ -61,7 +60,6 @@ public class UserDAO implements CrudDAO<User> {
                 user.setCity(rs.getString("city"));
                 user.setState(rs.getString("state"));
                 user.setZip(rs.getString("zip"));
-                user.setUserType(rs.getInt("usertype"));
 
                 userList.add(user);
             }
@@ -80,22 +78,11 @@ public class UserDAO implements CrudDAO<User> {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-
-
                 user.setId(rs.getInt("id"));
-                user.setFirstName(rs.getString("firstname"));
-                user.setLastName(rs.getString("lastName"));
-                user.setDateOfBirth(rs.getString("dateofbirth"));
-                user.setEmail(rs.getString("email"));
                 user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password"));
-                user.setAddress(rs.getString("address"));
                 user.setCity(rs.getString("city"));
                 user.setState(rs.getString("state"));
                 user.setZip(rs.getString("zip"));
-                user.setUserType(rs.getInt("usertype"));
-
-
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -154,12 +141,36 @@ public class UserDAO implements CrudDAO<User> {
                 user.setCity(rs.getString("city"));
                 user.setState(rs.getString("state"));
                 user.setZip(rs.getString("zip"));
-                user.setUserType(rs.getInt("usertype"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return user;
+    }
+    public List<User> searchSellers(String name) {
+        List<User> userList = new ArrayList<>();
+
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM users WHERE username LIKE ?");
+            ps.setString(1,"%" + name + "%");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                User user = new User();
+
+                user.setId(rs.getInt("id"));
+                user.setUsername(rs.getString("username"));
+                user.setCity(rs.getString("city"));
+                user.setState(rs.getString("state"));
+                user.setZip(rs.getString("zip"));
+
+
+                userList.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return userList;
     }
 }
 

@@ -12,12 +12,11 @@ public class User {
     private String city;
     private String state;
     private String zip;
-    private int userType = 1;
 
     public User() {
     }
 
-    public User(int id, String firstName, String lastName, String dateOfBirth, String email, String username, String password, String address, String city, String state, String zip, int userType) {
+    public User(int id, String firstName, String lastName, String dateOfBirth, String email, String username, String password, String address, String city, String state, String zip) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -29,7 +28,7 @@ public class User {
         this.city = city;
         this.state = state;
         this.zip = zip;
-        this.userType = userType;
+
     }
 
     public int getId() { return id; }
@@ -76,10 +75,6 @@ public class User {
 
     public void setZip(String zip) { this.zip = zip; }
 
-    public int getUserType() { return userType; }
-
-    public void setUserType(int userType) { this.userType = userType; }
-
     @Override
     public String toString() {
         return "First Name: " + firstName
@@ -92,5 +87,8 @@ public class User {
                 + "\nCity: "+ city
                 + "\nState: " + state
                 + "\nZip: " + zip;
+    }
+    public String transactionToString() {
+        return "Item Location: " + city + ", " + state + " " + zip;
     }
 }
